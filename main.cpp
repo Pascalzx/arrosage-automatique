@@ -10,7 +10,13 @@
 // ========== CONFIGURATION - TODO: REMPLIR CES VALEURS ==========
 const char* WIFI_SSID = "TODO_VOTRE_SSID";                    // TODO: Remplacer par votre SSID WiFi
 const char* WIFI_PASSWORD = "TODO_VOTRE_PASSWORD";            // TODO: Remplacer par votre mot de passe WiFi
-const char* STATION_METEO = "qc-155";                         // Code de station météo (Sherbrooke = qc-155)
+const char* STATION_METEO = "qc-155";                         // Code de station météo (par défaut: Sherbrooke)
+                                                               // Codes disponibles:
+                                                               // qc-155 = Sherbrooke
+                                                               // qc-147 = Montréal
+                                                               // qc-133 = Québec
+                                                               // qc-126 = Gatineau
+                                                               // qc-130 = Trois-Rivières
 
 // Seuils et paramètres
 const int SEUIL_HUMIDITE = 30;                                // Seuil d'humidité en % (arrosage si < 30%)
@@ -103,7 +109,15 @@ bool isRainingSoon() {
     HTTPClient http;                                          // Crée un client HTTP
     
     // Construction de l'URL pour l'API d'Environnement Canada (RSS)
-    String url = "https://dd.weather.gc.ca/citypage_weather/xml/QC/s0000598_f.xml";
+    // Mapping des codes de station vers les identifiants XML
+    String stationId = "s0000598";  // Par défaut Sherbrooke
+    if (String(STATION_METEO) == "qc-155") stationId = "s0000598";  // Sherbrooke
+    else if (String(STATION_METEO) == "qc-147") stationId = "s0000635";  // Montréal
+    else if (String(STATION_METEO) == "qc-133") stationId = "s0000620";  // Québec
+    else if (String(STATION_METEO) == "qc-126") stationId = "s0000623";  // Gatineau
+    else if (String(STATION_METEO) == "qc-130") stationId = "s0000616";  // Trois-Rivières
+    
+    String url = "https://dd.weather.gc.ca/citypage_weather/xml/QC/" + stationId + "_f.xml";
     
     http.begin(url);                                         // Initialise la connexion HTTP
     int httpCode = http.GET();                              // Effectue la requête GET
