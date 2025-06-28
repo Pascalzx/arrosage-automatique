@@ -1,6 +1,7 @@
 // main.cpp
 // Système d'arrosage automatique pour jardin - Sherbrooke, QC
 // ESP32 + 3 capteurs d'humidité capacitifs + relais/électrovanne
+// Version 1.1.0 - Voir CHANGELOG.md pour les détails
 
 #include <WiFi.h>
 #include <HTTPClient.h>
@@ -39,6 +40,11 @@ const char* TZ_INFO = "EST5EDT,M3.2.0,M11.1.0";              // Fuseau horaire E
 
 // Mode debug pour calibration (décommenter pour activer)
 // #define DEBUG_CALIB
+
+// Options de debug avancées
+// #define DEBUG_WIFI       // Debug connexion WiFi
+// #define DEBUG_HTTP       // Debug requêtes HTTP
+// #define DEBUG_TIMING     // Debug temps d'exécution
 
 // Variables globales
 unsigned long derniereMesure = 0;                              // Timestamp de la dernière mesure
@@ -251,6 +257,7 @@ void setup() {
     delay(1000);                                          // Petit délai pour stabilisation
     
     Serial.println("=== Système d'arrosage automatique ===");
+    Serial.println("Version 1.1.0");
     Serial.println("Démarrage...");
     
     // Configuration des broches
@@ -329,7 +336,17 @@ void loop() {
         
         // Vérifie la météo seulement si WiFi connecté
         if (WiFi.status() == WL_CONNECTED) {              // Si connecté au WiFi
+            #ifdef DEBUG_TIMING
+            unsigned long startMeteo = millis();
+            #endif
+            
             pluiePrevue = isRainingSoon();                // Vérifie la météo
+            
+            #ifdef DEBUG_TIMING
+            Serial.print("Temps vérification météo: ");
+            Serial.print(millis() - startMeteo);
+            Serial.println(" ms");
+            #endif
         } else {
             Serial.println("WiFi non connecté - pas de vérification météo");
         }
